@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overload API Controller</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-start {
+            background: #4CAF50;
+            color: white;
+        }
+        .btn-start:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .btn-stop {
+            background: #f44336;
+            color: white;
+        }
+        .btn-stop:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+        }
+        .btn-status {
+            background: #2196F3;
+            color: white;
+        }
+        .btn-status:hover {
+            background: #0b7dda;
+            transform: translateY(-2px);
+        }
+        .btn-health {
+            background: #FF9800;
+            color: white;
+        }
+        .btn-health:hover {
+            background: #e68900;
+            transform: translateY(-2px);
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .button-group {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Overload API Controller</h1>
+        
+        <div class="warning">
+            <strong>⚠️ Warning:</strong> This tool is for educational purposes only. Only test on your own servers or with explicit permission.
+        </div>
+
+        <div class="form-group">
+            <label for="targetUrl">Target URL:</label>
+            <input type="text" id="targetUrl" placeholder="example.com" value="httpbin.org/delay/1">
+        </div>
+
+        <div class="button-group">
+            <button class="btn-start" onclick="startAttack()">🎯 Start Attack</button>
+            <button class="btn-stop" onclick="stopAttack()">🛑 Stop Attack</button>
+            <button class="btn-status" onclick="getStatus()">📊 Get Status</button>
+            <button class="btn-health" onclick="healthCheck()">❤️ Health Check</button>
+        </div>
+
+        <div id="response">Ready to use API...</div>
+    </div>
+
+    <script>
+        const responseDiv = document.getElementById('response');
+
+        function updateResponse(data, status = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const statusEmoji = status === 'success' ? '✅' : status === 'error' ? '❌' : 'ℹ️';
+            responseDiv.textContent = `[${timestamp}] ${statusEmoji} ${JSON.stringify(data, null, 2)}`;
+        }
+
+        async function makeRequest(url, method = 'GET') {
+            try {
+                const response = await fetch(url, { method });
+                const data = await response.json();
+                updateResponse(data, response.ok ? 'success' : 'error');
+                return data;
+            } catch (error) {
+                updateResponse({ error: error.message }, 'error');
+            }
+        }
+
+        function startAttack() {
+            const targetUrl = document.getElementById('targetUrl').value.trim();
+            if (!targetUrl) {
+                updateResponse({ error: 'Please enter a target URL' }, 'error');
+                return;
+            }
+            makeRequest(`/api/attack/${encodeURIComponent(targetUrl)}`, 'POST');
+        }
+
+        function stopAttack() {
+            makeRequest('/api/attack/stop', 'POST');
+        }
+
+        function getStatus() {
+            makeRequest('/api/attack/status');
+        }
+
+        function healthCheck() {
+            makeRequest('/api/health');
+        }
+
+        // Auto health check on load
+        window.onload = function() {
+            setTimeout(healthCheck, 1000);
+        };
+    </script>
+</body>
+</html>
